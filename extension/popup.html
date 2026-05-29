@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PersuasiX</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: rgba(30, 41, 59, 0.95);
+      --accent: #818cf8;
+      --accent-light: #a5b4fc;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --danger: #f43f5e;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 400px;
+      min-height: 500px;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(129, 140, 248, 0.2);
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      background: linear-gradient(135deg, var(--accent), #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .header .subtitle {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--bg-secondary);
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+    }
+
+    .status-dot.connected { background: var(--success); }
+
+    .main { padding: 16px 20px; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid rgba(129, 140, 248, 0.15);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 13px;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 10px;
+      font-size: 13px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent); }
+
+    .result-section { display: none; }
+    .result-section.visible { display: block; }
+
+    .score-display {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .score-circle {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      border: 4px solid;
+    }
+
+    .score-circle.safe { border-color: var(--success); color: var(--success); }
+    .score-circle.warning { border-color: var(--warning); color: var(--warning); }
+    .score-circle.danger { border-color: var(--danger); color: var(--danger); }
+
+    .verdict {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .verdict.safe { color: var(--success); }
+    .verdict.warning { color: var(--warning); }
+    .verdict.danger { color: var(--danger); }
+
+    .techniques-list { list-style: none; }
+
+    .techniques-list li {
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 6px;
+      border-left: 3px solid var(--accent);
+      font-size: 12px;
+    }
+
+    .techniques-list li .tech-name {
+      font-weight: 600;
+      color: var(--accent-light);
+    }
+
+    .techniques-list li .tech-confidence {
+      float: right;
+      color: var(--text-secondary);
+    }
+
+    .highlight-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 40px; height: 20px;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      transition: 0.3s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 14px; width: 14px;
+      left: 3px; bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      display: none;
+    }
+
+    .loading.visible { display: block; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--bg-secondary);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer {
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      border-top: 1px solid rgba(129, 140, 248, 0.1);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    select {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>PersuasiX</h1>
+    <div class="subtitle">Real-time Persuasion Detection</div>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Connecting to API...</span>
+  </div>
+
+  <div class="main">
+    <!-- Input Section -->
+    <div class="card" id="inputSection">
+      <h3>Analyze Text</h3>
+      <textarea id="textInput" placeholder="Paste text to analyze, or use the buttons below..."></textarea>
+      <button class="btn btn-primary" id="analyzeBtn" disabled>Analyze</button>
+      <button class="btn btn-secondary" id="analyzePageBtn">Analyze Current Page</button>
+      <button class="btn btn-secondary" id="analyzeSelectionBtn">Analyze Selection</button>
+
+      <div class="settings-row" style="margin-top: 10px;">
+        <span>Language</span>
+        <select id="langSelect">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="ar">Arabic</option>
+          <option value="es">Spanish</option>
+          <option value="de">German</option>
+        </select>
+      </div>
+
+      <div class="highlight-toggle">
+        <label class="toggle-switch">
+          <input type="checkbox" id="autoHighlight" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span>Auto-highlight on pages</span>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loadingSection">
+      <div class="spinner"></div>
+      <p style="color: var(--text-secondary); font-size: 13px;">Analyzing text...</p>
+    </div>
+
+    <!-- Results Section -->
+    <div class="result-section" id="resultSection">
+      <div class="card">
+        <div class="score-display">
+          <div class="score-circle" id="scoreCircle">0</div>
+          <div class="verdict" id="verdictText">Analyzing...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Detected Techniques</h3>
+        <ul class="techniques-list" id="techniquesList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Key Phrases</h3>
+        <div id="phrasesContainer" style="font-size: 12px; color: var(--text-secondary);"></div>
+      </div>
+
+      <button class="btn btn-secondary" id="highlightPageBtn">Highlight on Page</button>
+      <button class="btn btn-secondary" id="newAnalysisBtn" style="margin-top: 6px;">New Analysis</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    PersuasiX v1.0 &mdash; Powered by GPT-4o-mini + RoBERTa
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

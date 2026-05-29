@@ -1,0 +1,51 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="persuasix",
+    version="1.0.0",
+    description="Multilingual Detection, Explanation, and Neutralization of Persuasion Techniques in Text",
+    long_description=open("README.md", encoding="utf-8").read(),
+    long_description_content_type="text/markdown",
+    author="PersuasiX Team",
+    license="MIT",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    python_requires=">=3.10",
+    install_requires=[
+        "torch>=2.1.0",
+        "transformers>=4.36.0",
+        "datasets>=2.16.0",
+        "accelerate>=0.25.0",
+        "peft>=0.7.0",
+        "sentence-transformers>=2.3.0",
+        "pandas>=2.1.0",
+        "numpy>=1.24.0",
+        "scikit-learn>=1.3.0",
+        "pyyaml>=6.0.0",
+        "tqdm>=4.66.0",
+        "loguru>=0.7.0",
+        "click>=8.1.0",
+        "rich>=13.7.0",
+        "gradio>=4.12.0",
+    ],
+    extras_require={
+        "dev": ["pytest>=7.4.0", "pytest-cov>=4.1.0", "ruff>=0.1.0"],
+        "enrichment": ["openai>=1.6.0", "anthropic>=0.40.0"],
+        "collection": ["beautifulsoup4>=4.12.0", "trafilatura>=1.6.0", "newspaper3k>=0.2.8"],
+    },
+    entry_points={
+        "console_scripts": [
+            "persuasix-train=scripts.train:main",
+            "persuasix-eval=scripts.evaluate:main",
+            "persuasix-collect=scripts.collect_data:main",
+            "persuasix-demo=app.app:main",
+        ],
+    },
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
+)

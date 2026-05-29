@@ -1,0 +1,11 @@
+/* PersuasiX Content Script Styles — injected into every page */
+
+.persuasix-highlight {
+  position: relative;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.persuasix-highlight:hover {
+  filter: brightness(1.15);
+}

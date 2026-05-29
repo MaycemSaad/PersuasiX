@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.parquet
+
+# Models
+models/
+checkpoints/
+*.pt
+*.pth
+*.bin
+*.onnx
+*.safetensors
+
+# Logs
+logs/
+wandb/
+runs/
+*.log
+main.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.key
+
+# VS Code local history
+.history/
+
+# Runtime data
+data/persuasix.db
+data/analysis_history.json
+data/reports/*.pdf
+data/adversarial_report.json
+data/synthetic/
+
+# Claude artifacts
+.claude/
