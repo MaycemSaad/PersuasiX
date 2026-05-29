@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -24,13 +25,14 @@ from components import (
     build_multi_comparison_html,
     build_batch_table_html,
     build_dashboard_html,
+    build_intelligence_html,
     build_education_html,
     EXAMPLE_TEXTS,
     CSS,
 )
 from scraper import scrape_url
 from file_parser import parse_file
-from history import save_analysis, get_stats, clear_history
+from history import save_analysis, get_stats, clear_history, load_history
 
 
 def create_demo() -> gr.Blocks:
@@ -286,6 +288,18 @@ def create_demo() -> gr.Blocks:
         return build_dashboard_html(get_stats())
 
     # ==================================================================
+    # TAB 7: Intelligence
+    # ==================================================================
+    def load_intelligence():
+        from src.pipeline.intelligence import PersuasixIntelligence
+
+        history = load_history()
+        for index, entry in enumerate(history, start=1):
+            entry.setdefault("id", index)
+        report = PersuasixIntelligence(history).threat_report()
+        return build_intelligence_html(report)
+
+    # ==================================================================
     # BUILD UI
     # ==================================================================
     with gr.Blocks(title="PersuasiX Studio") as demo:
@@ -304,12 +318,13 @@ def create_demo() -> gr.Blocks:
                 <span>Multi-Source</span>
                 <span>18 Techniques</span>
                 <span>7 Languages</span>
+                <span>Analyst Intel</span>
             </div>
             <div class="stats-bar">
                 <div class="stat-item"><div class="stat-value">18</div><div class="stat-label">Techniques</div></div>
                 <div class="stat-item"><div class="stat-value">7</div><div class="stat-label">Languages</div></div>
-                <div class="stat-item"><div class="stat-value">9</div><div class="stat-label">Modes</div></div>
-                <div class="stat-item"><div class="stat-value">4</div><div class="stat-label">AI Models</div></div>
+                <div class="stat-item"><div class="stat-value">10</div><div class="stat-label">Modes</div></div>
+                <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">AI Systems</div></div>
             </div>
         </div>
         """)
@@ -472,9 +487,27 @@ def create_demo() -> gr.Blocks:
                 clear_hist_btn.click(fn=clear_dashboard, outputs=[dashboard_output])
 
             # ============================================================
-            # TAB 7: Fact Checker
+            # TAB 7: Intelligence
             # ============================================================
-            with gr.TabItem("Fact Checker", id=6):
+            with gr.TabItem("Intelligence", id=6):
+                gr.HTML("""
+                <div class="section-header">
+                    <div>
+                        <h3>&#128300; Analyst Intelligence</h3>
+                        <p>Review active-learning candidates, drift, repeated narratives, and high-risk signals.</p>
+                    </div>
+                    <span class="section-pill">History Powered</span>
+                </div>
+                """)
+                with gr.Row():
+                    refresh_intel_btn = gr.Button("Refresh Intelligence", variant="primary", size="lg")
+                intelligence_output = gr.HTML(value=load_intelligence())
+                refresh_intel_btn.click(fn=load_intelligence, outputs=[intelligence_output])
+
+            # ============================================================
+            # TAB 8: Fact Checker
+            # ============================================================
+            with gr.TabItem("Fact Checker", id=7):
                 gr.HTML("""
                 <div class="glass-card" style="margin-bottom:16px;">
                     <h3 style="color:#f1f5f9; margin:0 0 6px;">&#128269; Fact Checker</h3>
@@ -531,9 +564,9 @@ def create_demo() -> gr.Blocks:
                 fact_btn.click(fn=run_fact_check, inputs=[fact_input, lang_fact], outputs=[fact_output, status_fact])
 
             # ============================================================
-            # TAB 8: Span Detection
+            # TAB 9: Span Detection
             # ============================================================
-            with gr.TabItem("Span Detection", id=7):
+            with gr.TabItem("Span Detection", id=8):
                 gr.HTML("""
                 <div class="glass-card" style="margin-bottom:16px;">
                     <h3 style="color:#f1f5f9; margin:0 0 6px;">&#127919; Span-Level Detection</h3>
@@ -606,16 +639,16 @@ def create_demo() -> gr.Blocks:
                 span_btn.click(fn=run_span_detection, inputs=[span_input], outputs=[span_output, status_span])
 
             # ============================================================
-            # TAB 9: Education Center
+            # TAB 10: Education Center
             # ============================================================
-            with gr.TabItem("Learn", id=8):
+            with gr.TabItem("Learn", id=9):
                 gr.HTML(build_education_html())
 
         # ── Footer ──
         gr.HTML("""
         <div class="footer">
             <p>PersuasiX Studio &mdash; Full Platform for Persuasion Analysis</p>
-            <p style="margin-top:4px;">Text &bull; URL &bull; File &bull; Compare &bull; Batch &bull; Dashboard &bull; Fact Check &bull; Span Detection &bull; Education</p>
+            <p style="margin-top:4px;">Text &bull; URL &bull; File &bull; Compare &bull; Batch &bull; Dashboard &bull; Intelligence &bull; Fact Check &bull; Span Detection &bull; Education</p>
             <p style="margin-top:4px; font-size:0.8em;">Powered by GPT-4o-mini, RoBERTa, FLAN-T5, Sentence-Transformers &amp; Gradio</p>
         </div>
         """)
@@ -625,7 +658,8 @@ def create_demo() -> gr.Blocks:
 
 def main():
     demo = create_demo()
-    demo.launch(share=False, server_port=7863, css=CSS)
+    port = int(os.environ.get("GRADIO_SERVER_PORT", "7863"))
+    demo.launch(share=False, server_port=port, css=CSS)
 
 
 if __name__ == "__main__":

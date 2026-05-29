@@ -2,7 +2,7 @@
 
 ### Multilingual Detection, Explanation & Neutralization of Persuasion Techniques in Text
 
-> **PersuasiX** is a large-scale multilingual NLP project that goes beyond detecting propaganda — it **explains** why a text is manipulative, **rewrites** it neutrally, and **scores** its severity across 7 languages (English, French, Arabic, Spanish, German, Chinese, Hindi).
+> **PersuasiX** is a large-scale multilingual NLP platform that **detects**, **explains**, **neutralizes**, and **monitors** propaganda and manipulation techniques in real-time — across 7 languages, multiple media formats (text, audio, video), and social platforms (Mastodon, RSS, YouTube, Hacker News).
 
 ---
 
@@ -15,12 +15,19 @@
 - [Dataset Pipeline](#dataset-pipeline)
 - [The 4 NLP Tasks](#the-4-nlp-tasks)
 - [Models](#models)
+- [Social Media Monitoring](#social-media-monitoring)
+- [Speech-to-Text Analysis](#speech-to-text-analysis)
+- [Chrome Browser Extension](#chrome-browser-extension)
+- [Collaborative Annotation](#collaborative-annotation)
+- [Operational Intelligence](#operational-intelligence)
+- [Model Distillation & Edge Deployment](#model-distillation--edge-deployment)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Training](#training)
 - [Evaluation](#evaluation)
 - [Demo App](#demo-app)
+- [API Reference](#api-reference)
 - [Results](#results)
 - [Deployment](#deployment)
 - [Roadmap](#roadmap)
@@ -31,77 +38,107 @@
 
 ## Overview
 
-Misinformation and manipulative rhetoric are pervasive in modern media — from news articles and political speeches to social media posts. While existing NLP systems can *detect* propaganda, they fail at the crucial next steps: **explaining** the manipulation mechanism and **providing a neutral alternative**.
+Misinformation and manipulative rhetoric are pervasive in modern media — from news articles and political speeches to social media posts and video content. While existing NLP systems can *detect* propaganda, they fail at the crucial next steps: **explaining** the manipulation mechanism, **providing a neutral alternative**, and **monitoring content at scale in real-time**.
 
-**PersuasiX** bridges this gap with a 4-stage pipeline:
+**PersuasiX** bridges this gap with a comprehensive platform:
 
 ```
-Input Text → Detection → Explanation → Neutralization → Severity Score
+                    ┌─────────────────────────────────────────────────────┐
+                    │              PersuasiX Platform                      │
+                    ├─────────────────────────────────────────────────────┤
+                    │                                                     │
+ Input Sources      │   Core NLP Pipeline        Output & Actions         │
+ ─────────────      │   ────────────────         ────────────────         │
+ • Text             │                                                     │
+ • URLs/Articles    │   Detection ──┐            • Technique Labels       │
+ • Audio/Video ─────┤   Explanation ├──────────► • Explanations (7 lang)  │
+ • RSS Feeds        │   Neutralization           • Neutral Rewrites       │
+ • Mastodon         │   Severity Scoring         • Risk Scores            │
+ • YouTube          │   Span Detection           • Highlighted Spans      │
+ • Hacker News      │   Fact-Checking            • Fact-Check Reports     │
+                    │                            • PDF Reports            │
+                    │                            • Alerts & Dashboards    │
+                    └─────────────────────────────────────────────────────┘
 ```
 
 | Feature | PersuasiX |
 |---|---|
 | **Languages** | English, French, Arabic, Spanish, German, Chinese, Hindi |
 | **Techniques** | 18 fine-grained propaganda categories |
-| **Tasks** | Detection, Explanation, Neutralization, Scoring, Fact-Checking, Span Detection |
-| **Training** | LoRA/QLoRA fine-tuning for efficient adaptation |
-| **Pipeline** | End-to-end: raw text → full analysis |
-| **API** | FastAPI REST API with 15+ endpoints + Swagger docs |
-| **Extension** | Chrome browser extension for real-time analysis |
-| **Monitoring** | RSS + social media monitoring with automated alerts |
+| **NLP Tasks** | Detection, Explanation, Neutralization, Scoring, Fact-Checking, Span Detection |
+| **Training** | LoRA/QLoRA fine-tuning (4-bit quantization, 0.5-2% parameters) |
+| **Social Monitoring** | Mastodon (real-time), RSS (17+ global feeds), YouTube Transcripts, Hacker News |
+| **Speech Analysis** | Audio/video transcription via Whisper + timestamped persuasion analysis |
+| **Browser Extension** | Chrome Manifest V3 with real-time in-page highlighting |
+| **Annotation** | Collaborative labeling with inter-annotator agreement and export |
+| **Intelligence** | Active learning, drift detection, narrative clustering, threat reports |
+| **Distillation** | Knowledge distillation + ONNX export for edge/mobile deployment |
+| **API** | FastAPI REST API with 20+ endpoints + Swagger docs |
 | **Reports** | Professional PDF report generation |
-| **Demo** | Interactive 9-tab Gradio app + HuggingFace Spaces deployment |
+| **Demo** | Interactive 9-tab Gradio app + HuggingFace Spaces (GPU) |
+| **Robustness** | Tested against 12+ adversarial attack types |
 
 ---
 
 ## Key Innovation
 
-Most existing work stops at **detection** (binary or multi-label classification). PersuasiX introduces three novel capabilities:
+Most existing work stops at **detection** (binary or multi-label classification). PersuasiX introduces eleven capabilities that make it a **complete media literacy and operational intelligence platform**:
 
 1. **Explanation Generation** — Natural-language explanations of *why* each technique is manipulative, in 7 languages
 2. **Text Neutralization** — Automatic rewriting that removes manipulation while preserving factual content
 3. **Cross-lingual Severity Scoring** — Quantifying manipulation intensity using multilingual embeddings
 4. **Span-level Detection** — Character-precise identification of manipulative phrases using RoBERTa+CRF hybrid with LLM validation
 5. **Fact-Checking Integration** — Automatic claim extraction and verification via Google Fact Check Tools, ClaimBuster, and LLM-powered analysis
-6. **LoRA/QLoRA Fine-tuning** — Memory-efficient training with 4-bit quantization, training only 0.5-2% of parameters
-7. **Adversarial Robustness** — Tested against 12+ attack types (homoglyphs, prompt injection, semantic perturbations)
-8. **Browser Extension** — Real-time Chrome extension with in-page highlighting and context menu integration
-9. **Synthetic Data Pipeline** — Scalable to 200K+ examples across 7 languages using template + LLM generation
-10. **Live Monitoring & Annotation** — Social media monitoring, collaborative annotation, and audio/video analysis workflows
-
-This makes PersuasiX not just a classifier, but a **complete media literacy and research platform**.
+6. **Real-time Social Monitoring** — Free, no-API-key monitoring across Mastodon, RSS feeds, YouTube, and Hacker News with real-time streaming
+7. **Speech-to-Text Pipeline** — Transcribe audio/video via Whisper, chunk by timestamp, analyze each segment for persuasion
+8. **Browser Extension** — Chrome extension with in-page highlighting, context menu, and popup analysis
+9. **Collaborative Annotation** — Multi-annotator task queues, span labels, inter-annotator agreement, and fine-tuning export
+10. **Model Distillation** — Knowledge distillation to smaller models + ONNX/quantized export for edge deployment
+11. **Operational Intelligence** — Active learning queues, distribution drift detection, narrative clustering, and automated threat reports
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        PersuasiX Pipeline                           │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐             │
-│  │  Input Text  │──▶│  RoBERTa    │──▶│  Multi-label │             │
-│  │  (EN/FR/AR)  │   │  Encoder     │   │  Detection   │             │
-│  └──────────────┘   └──────────────┘   └──────┬───────┘             │
-│                                                 │                   │
-│                    ┌────────────────────────────┼────────────┐      │
-│                    │                            │            │      │
-│                    ▼                            ▼            ▼      │
-│           ┌──────────────┐            ┌──────────────┐ ┌─────────┐  │
-│           │  FLAN-T5     │            │  FLAN-T5     │ │Sentence │  │
-│           │  Explainer   │            │  Neutralizer │ │Transf.  │  │
-│           │              │            │              │ │Scorer   │  │
-│           └──────┬───────┘            └──────┬───────┘ └────┬────┘  │
-│                  │                           │              │       │
-│                  ▼                           ▼              ▼       │
-│         ┌────────────────┐          ┌────────────────┐ ┌────────┐   │
-│         │ Multilingual   │          │ Neutral        │ │Severity│   │
-│         │ Explanations   │          │ Rewrite        │ │ Score  │   │
-│         │ (EN, FR, AR)   │          │                │ │ (0-5)  │   │
-│         └────────────────┘          └────────────────┘ └────────┘   │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              PersuasiX Architecture                                   │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                      │
+│  INPUT LAYER                                                                         │
+│  ───────────                                                                         │
+│  ┌─────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────────────┐ ┌──────────────┐  │
+│  │ Direct Text │ │  URL/Article │ │  Audio/Video │ │  Social    │ │   Chrome     │  │
+│  │             │ │  Scraping    │ │  (Whisper)   │ │  Streams   │ │  Extension   │  │
+│  └──────┬──────┘ └──────┬───────┘ └──────┬───────┘ └─────┬──────┘ └──────┬───────┘  │
+│         └───────────────┬┴───────────────┬┘               │               │          │
+│                         ▼                ▼                 ▼               ▼          │
+│  CORE NLP PIPELINE                                                                    │
+│  ─────────────────                                                                    │
+│  ┌──────────────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                              │    │
+│  │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌─────────────┐   │    │
+│  │  │  RoBERTa     │   │  FLAN-T5     │   │  FLAN-T5     │   │  Sentence   │   │    │
+│  │  │  Detector    │   │  Explainer   │   │  Neutralizer │   │  Transformer│   │    │
+│  │  │  (18 labels) │   │  (7 langs)   │   │  (debiasing) │   │  (scoring)  │   │    │
+│  │  └──────────────┘   └──────────────┘   └──────────────┘   └─────────────┘   │    │
+│  │                                                                              │    │
+│  │  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐                     │    │
+│  │  │  Span        │   │  Fact        │   │  Severity    │                     │    │
+│  │  │  Detector    │   │  Checker     │   │  Scorer      │                     │    │
+│  │  │  (CRF+LLM)  │   │  (Multi-API) │   │  (0-5 scale) │                     │    │
+│  │  └──────────────┘   └──────────────┘   └──────────────┘                     │    │
+│  │                                                                              │    │
+│  └──────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                      │
+│  OUTPUT LAYER                                                                         │
+│  ────────────                                                                         │
+│  ┌──────────┐ ┌───────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐ ┌──────────┐   │
+│  │ REST API │ │ Gradio UI │ │ PDF Rpts │ │ Alerts   │ │ Annotation │ │ Intel    │   │
+│  │ (20+ ep) │ │ (9 tabs)  │ │          │ │          │ │ Export     │ │ Reports  │   │
+│  └──────────┘ └───────────┘ └──────────┘ └──────────┘ └────────────┘ └──────────┘   │
+│                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -135,12 +172,12 @@ PersuasiX detects **18 fine-grained persuasion/propaganda techniques**, based on
 
 ## Dataset Pipeline
 
-The dataset is built through a **4-stage reproducible pipeline**, inspired by the IdiomX methodology:
+The dataset is built through a **4-stage reproducible pipeline**, scaling to **200K+ examples** across 7 languages:
 
 ```
-Stage 1: Collection       →  Gather texts from multiple sources
+Stage 1: Collection       →  Gather texts from corpora, news, social media, synthetic generation
 Stage 2: Cleaning         →  Deduplicate, normalize, filter
-Stage 3: LLM Enrichment   →  Generate explanations + neutral rewrites via GPT-4
+Stage 3: LLM Enrichment   →  Generate explanations + neutral rewrites via GPT-4o-mini
 Stage 4: Validation       →  Semantic similarity checks + quality scoring
 ```
 
@@ -148,17 +185,18 @@ Stage 4: Validation       →  Semantic similarity checks + quality scoring
 
 | Stage | Module | What it does |
 |---|---|---|
-| **Collection** | `src/data/collector.py` | Aggregates texts from SemEval propaganda corpora, news articles, social media, and synthetic generation |
+| **Collection** | `src/data/collector.py` | Aggregates texts from SemEval corpora, news articles, social media, and synthetic generation |
 | **Cleaning** | `src/data/cleaner.py` | Unicode normalization, URL removal, deduplication (MD5), length filtering |
-| **Enrichment** | `src/data/enricher.py` | Uses GPT-4o-mini to generate: explanations (EN/FR/AR), neutral rewrites, severity scores, target audience |
-| **Validation** | `src/data/validator.py` | Validates technique labels, checks explanation quality, computes semantic similarity between original and rewrite |
+| **Enrichment** | `src/data/enricher.py` | Uses GPT-4o-mini to generate: explanations (7 languages), neutral rewrites, severity scores, target audience |
+| **Validation** | `src/data/validator.py` | Validates technique labels, checks explanation quality, computes semantic similarity |
+| **Synthetic** | `scripts/generate_synthetic_data.py` | Template + LLM + paraphrase augmentation across all 7 languages |
 
-### Dataset Statistics (Target)
+### Dataset Statistics
 
 | Metric | Value |
 |---|---|
-| Total examples | ~100,000+ |
-| Languages | 3 (EN, FR, AR) |
+| Total examples | 200,000+ |
+| Languages | 7 (EN, FR, AR, ES, DE, ZH, HI) |
 | Persuasive examples | ~50% |
 | Neutral examples | ~50% |
 | Unique techniques | 18 |
@@ -174,16 +212,17 @@ Stage 4: Validation       →  Semantic similarity checks + quality scoring
 - **Input**: Raw text
 - **Output**: Binary vector over 18 techniques + probabilities
 - **Loss**: BCEWithLogitsLoss
+- **Training**: LoRA/QLoRA (4-bit) with rank 8-64, alpha 16-128
 
 ### Task 2: Explanation Generation
-- **Model**: FLAN-T5-base (fine-tuned)
+- **Model**: FLAN-T5-base (fine-tuned with LoRA)
 - **Type**: Seq2Seq generation
 - **Input**: Text + detected techniques
-- **Output**: Natural-language explanation (in 3 languages)
+- **Output**: Natural-language explanation (in 7 languages)
 - **Metrics**: ROUGE-L, BERTScore, BLEU
 
 ### Task 3: Text Neutralization
-- **Model**: FLAN-T5-base (fine-tuned)
+- **Model**: FLAN-T5-base (fine-tuned with LoRA)
 - **Type**: Seq2Seq generation
 - **Input**: Persuasive text + techniques to remove
 - **Output**: Neutral, factual rewrite
@@ -195,6 +234,17 @@ Stage 4: Validation       →  Semantic similarity checks + quality scoring
 - **Input**: Original + neutral text pair
 - **Output**: Manipulation score (0-1) + severity level (0-5)
 
+### Span-level Detection
+- **Model**: RoBERTa+CRF hybrid with LLM validation
+- **Module**: `src/pipeline/span_detector.py`
+- **Output**: Character-precise spans with technique labels
+- **Approach**: BIO tagging with CRF layer + GPT-4o-mini cross-validation
+
+### Fact-Checking
+- **Module**: `src/pipeline/fact_checker.py`
+- **APIs**: Google Fact Check Tools, ClaimBuster, LLM-powered verification
+- **Output**: Claim extraction, verification status, source citations
+
 ---
 
 ## Models
@@ -205,6 +255,23 @@ Stage 4: Validation       →  Semantic similarity checks + quality scoring
 | **Explainer** | `google/flan-t5-base` | 250M | Explanation generation |
 | **Neutralizer** | `google/flan-t5-base` | 250M | Text debiasing / rewriting |
 | **Scorer** | `paraphrase-multilingual-MiniLM-L12-v2` | 118M | Cross-lingual similarity |
+| **Span Detector** | `roberta-base` + CRF | 125M | Token-level BIO tagging |
+| **Distilled Student** | `distilbert-base` | 66M | Edge/mobile inference |
+
+### LoRA/QLoRA Training
+
+All seq2seq models are fine-tuned using **LoRA** (Low-Rank Adaptation) with optional **4-bit quantization**:
+
+```python
+# src/training/lora_trainer.py
+LoRAConfig:
+    rank: 8-64
+    alpha: 16-128
+    dropout: 0.05-0.1
+    target_modules: ["q_proj", "v_proj"]
+    quantization: 4-bit (QLoRA) or 8-bit
+    trainable_params: 0.5-2% of total
+```
 
 ### Detector Architecture
 
@@ -218,6 +285,332 @@ Dropout(0.1) → Linear(768, 256) → ReLU
 Dropout(0.1) → Linear(256, 18)
     ↓
 BCEWithLogitsLoss (training) / Sigmoid (inference)
+```
+
+---
+
+## Social Media Monitoring
+
+PersuasiX includes a **real-time social media monitoring system** that fetches content from multiple platforms and runs persuasion analysis automatically — **all using free APIs with no keys required**.
+
+### Supported Platforms
+
+| Platform | Type | Auth Required | Real-time | Languages |
+|----------|------|:---:|:---:|---|
+| **Mastodon** | Fediverse | None | WebSocket streaming | en, fr, de, es, ar, ... |
+| **RSS Feeds** | News (17+ outlets) | None | Polling (5min) | en, fr, ar, de, es |
+| **YouTube Transcripts** | Video content | None | On-demand | 50+ languages |
+| **Hacker News** | Tech/society debates | None | Firebase SSE | en |
+| **Twitter/X** | Social media | Bearer Token (paid) | Filtered stream | multi |
+
+### News Sources (RSS)
+
+Pre-configured feeds from major global outlets:
+
+- **English**: BBC World, BBC Politics, CNN, Fox News, Al Jazeera EN, NPR, The Guardian
+- **French**: France24, Le Monde, RFI
+- **Arabic**: Al Jazeera AR, BBC Arabic
+- **German**: Deutsche Welle, Spiegel
+- **Spanish**: BBC Mundo, El Pais
+
+### Usage
+
+```python
+from src.pipeline.social_monitor import SocialMonitor
+
+monitor = SocialMonitor()
+
+# Real-time Mastodon streaming (FREE)
+results = monitor.stream_mastodon(keywords=["propaganda", "manipulation"], duration=120)
+
+# Fetch news from all RSS feeds (FREE)
+news = monitor.fetch_rss_news(languages=["en", "fr", "ar"])
+
+# Analyze a YouTube video transcript (FREE)
+video_analysis = monitor.analyze_youtube_video("VIDEO_ID")
+
+# Hacker News debates (FREE)
+hn = monitor.fetch_hackernews(limit=20)
+
+# Multi-platform search (FREE)
+results = monitor.multi_platform_search("immigration", platforms=["mastodon", "rss", "hackernews"])
+
+# Real-time monitoring with callbacks
+def on_detection(result):
+    if result.manipulation_score > 0.7:
+        print(f"ALERT: {result.post.platform} — {result.techniques}")
+
+monitor.monitor_realtime(keywords=["fear", "crisis"], duration=300, callback=on_detection)
+```
+
+### API Endpoints
+
+```
+GET  /api/v1/social/status          — Platform availability
+POST /api/v1/social/mastodon/search — Search Mastodon
+POST /api/v1/social/mastodon/stream — Stream real-time
+GET  /api/v1/social/rss/fetch       — Fetch all RSS feeds
+POST /api/v1/social/rss/search      — Search in feeds
+POST /api/v1/social/youtube         — Analyze video transcript
+GET  /api/v1/social/hackernews      — Fetch HN stories
+POST /api/v1/social/multi-search    — Cross-platform search
+```
+
+---
+
+## Speech-to-Text Analysis
+
+PersuasiX analyzes **audio and video content** for persuasion techniques by transcribing speech and running the full NLP pipeline on timestamped segments.
+
+### Pipeline
+
+```
+Audio/Video → Whisper Transcription → Timestamp Chunking → PersuasiX Analysis → Timeline Report
+```
+
+### Features
+
+- **Dual transcription**: OpenAI Whisper API (cloud) or local Whisper model (offline, GPU)
+- **Format support**: mp3, wav, m4a, ogg, flac, mp4, webm
+- **Chunked analysis**: 60-second segments with individual scores
+- **Timeline output**: Time-indexed manipulation scores for video scrubbing
+- **Speaker diarization**: Optional speaker identification
+
+### Usage
+
+```python
+from src.pipeline.speech_analyzer import SpeechAnalyzer
+
+analyzer = SpeechAnalyzer(transcriber="auto")  # auto-selects API or local
+
+# Analyze a local file
+result = analyzer.analyze_file("political_speech.mp3", language="en")
+
+print(f"Duration: {result.duration:.1f}s")
+print(f"Overall manipulation score: {result.overall_score:.2%}")
+print(f"Techniques found: {result.overall_techniques}")
+
+# Timeline of manipulation intensity
+for point in result.timeline:
+    print(f"  [{point['timestamp']}] Score: {point['score']}% — {point['techniques']}")
+
+# Analyze from URL
+result = analyzer.analyze_url("https://example.com/speech.mp4")
+```
+
+### API Endpoint
+
+```bash
+curl -X POST http://localhost:8000/api/v1/speech/file \
+    -F "file=@speech.mp3" \
+    -F "language=en"
+```
+
+---
+
+## Chrome Browser Extension
+
+A **Manifest V3 Chrome extension** that brings PersuasiX analysis directly into the browser, highlighting manipulative content in real-time as you browse.
+
+### Features
+
+- **Popup analysis**: Click the icon to analyze the current page
+- **In-page highlighting**: Color-coded overlay on manipulative phrases
+- **Context menu**: Right-click selected text → "Analyze with PersuasiX"
+- **Badge notifications**: Red badge with manipulation score on the icon
+- **Settings**: Configurable API endpoint, sensitivity, language
+- **Technique tooltips**: Hover highlighted text for technique explanations
+
+### Extension Structure
+
+```
+extension/
+├── manifest.json          # Manifest V3 configuration
+├── popup.html / popup.js  # Extension popup UI
+├── background.js          # Service worker (context menu, badge)
+├── content.js / content.css  # In-page highlighting & tooltips
+├── options.html           # Settings page
+└── icons/                 # 16px, 48px, 128px icons
+```
+
+### Installation (Developer Mode)
+
+```bash
+# Load unpacked in Chrome
+1. Open chrome://extensions/
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the extension/ directory
+```
+
+### Publishing to Chrome Web Store
+
+```bash
+cd extension
+python icons/generate_icons.py
+zip -r persuasix-extension.zip manifest.json popup.html popup.js \
+    background.js content.js content.css options.html icons/
+# Upload to https://chrome.google.com/webstore/devconsole
+```
+
+Full publishing checklist in `extension/PUBLISHING.md`.
+
+---
+
+## Collaborative Annotation
+
+A built-in **annotation interface** for building gold-standard datasets through multi-annotator labeling, enabling continuous model improvement.
+
+### Features
+
+- **Task queues**: Create and assign annotation tasks to multiple annotators
+- **Span labeling**: Character-level span selection with technique labels
+- **Document-level**: Binary persuasiveness, technique set, severity rating
+- **Model feedback**: Agree/partial/disagree with model predictions
+- **Inter-annotator agreement**: Automatic Jaccard similarity and verdict agreement
+- **Export**: JSONL export with majority voting for fine-tuning
+
+### Architecture
+
+```
+SQLite DB (annotations.db)
+├── tasks table       — Texts to annotate (status tracking)
+├── annotations table — Individual annotator labels
+└── annotators table  — Annotator stats and agreement scores
+```
+
+### Usage
+
+```python
+from app.annotation import AnnotationDB, Annotation
+
+db = AnnotationDB()
+
+# Add tasks
+db.add_task("text_001", "This is the only solution! Everyone agrees!", language="en")
+
+# Submit annotation
+annotation = Annotation(
+    text_id="text_001",
+    annotator="alice",
+    is_persuasive=True,
+    techniques=["Bandwagon", "False Dilemma"],
+    severity=3.5,
+    model_agreement="partial",
+    spans=[{"start": 0, "end": 28, "technique": "False Dilemma"}],
+)
+db.save_annotation(annotation)
+
+# Check agreement
+agreement = db.compute_agreement("text_001")
+# {"verdict_agreement": 1.0, "technique_jaccard": 0.75, ...}
+
+# Export for training
+db.export_for_training("data/annotated_export.jsonl", min_annotations=2)
+```
+
+### API Endpoints
+
+```
+POST /api/v1/annotate/tasks          — Create annotation task
+POST /api/v1/annotate/tasks/bulk     — Bulk create tasks
+GET  /api/v1/annotate/tasks/next     — Get next task for annotator
+POST /api/v1/annotate/submit         — Submit annotation
+GET  /api/v1/annotate/agreement/{id} — Compute inter-annotator agreement
+GET  /api/v1/annotate/stats          — Annotation statistics
+POST /api/v1/annotate/export         — Export for fine-tuning
+```
+
+---
+
+## Operational Intelligence
+
+An **analyst intelligence layer** that provides proactive insights from accumulated analysis data — identifying emerging narratives, detecting distribution shifts, and prioritizing uncertain examples for review.
+
+### Capabilities
+
+| Feature | Description |
+|---------|-------------|
+| **Active Learning** | Ranks uncertain predictions for human review to maximize labeling efficiency |
+| **Drift Detection** | Compares recent technique distributions against baseline to catch emerging trends |
+| **Narrative Clustering** | Groups similar manipulative texts to identify coordinated campaigns |
+| **Threat Reports** | Automated reports combining risk scores, drift signals, and top threats |
+
+### Usage
+
+```python
+from src.pipeline.intelligence import IntelligenceEngine
+
+engine = IntelligenceEngine()
+
+# Get uncertain examples for review
+candidates = engine.get_active_learning_candidates(limit=20)
+
+# Detect distribution drift
+drift = engine.detect_drift(window_hours=24)
+# {"drift_detected": True, "shifted_techniques": ["Appeal to Fear", ...]}
+
+# Cluster narratives
+clusters = engine.cluster_narratives(min_cluster_size=3)
+# [{"theme": "immigration fear", "count": 12, "avg_score": 0.82}, ...]
+
+# Generate threat report
+report = engine.generate_threat_report()
+```
+
+### API Endpoints
+
+```
+GET /api/v1/intelligence/active-learning     — Uncertain examples for review
+GET /api/v1/intelligence/drift               — Distribution drift analysis
+GET /api/v1/intelligence/narrative-clusters   — Grouped narratives
+GET /api/v1/intelligence/threat-report       — Combined threat assessment
+```
+
+---
+
+## Model Distillation & Edge Deployment
+
+PersuasiX includes a **knowledge distillation pipeline** for deploying lightweight models on edge devices (browsers, mobile, embedded systems).
+
+### Pipeline
+
+```
+Teacher (RoBERTa-base, 125M) → Knowledge Distillation → Student (DistilBERT, 66M)
+                                                              ↓
+                                                        ONNX Export
+                                                              ↓
+                                                    ┌─────────────────────┐
+                                                    │ • Dynamic quantized │
+                                                    │ • INT8 optimized    │
+                                                    │ • ~3x faster        │
+                                                    │ • ~4x smaller       │
+                                                    └─────────────────────┘
+```
+
+### Features
+
+- **Teacher-student training**: Soft label distillation with temperature scaling
+- **ONNX export**: Cross-platform inference (browser, mobile, C++)
+- **Quantization**: Dynamic INT8 quantization for 4x size reduction
+- **Benchmarking**: Automatic accuracy vs. speed comparison
+
+### Usage
+
+```bash
+# Distill teacher to student
+python -m src.pipeline.distiller \
+    --teacher roberta-base \
+    --student distilbert-base-uncased \
+    --epochs 10 \
+    --export-onnx \
+    --quantize dynamic
+
+# Output: models/distilled/
+#   ├── student_model/          (PyTorch)
+#   ├── student_model.onnx      (ONNX)
+#   ├── student_quantized.onnx  (INT8)
+#   └── benchmark_results.json
 ```
 
 ---
@@ -258,20 +651,22 @@ persuasix/
 │   │   ├── persuasix_pipeline.py      # End-to-end orchestration
 │   │   ├── span_detector.py           # RoBERTa+CRF span-level detection
 │   │   ├── fact_checker.py            # Multi-API fact verification
-│   │   ├── social_monitor.py          # Twitter/X, Reddit, YouTube monitoring
+│   │   ├── social_monitor.py          # Mastodon, RSS, YouTube, HN monitoring
 │   │   ├── speech_analyzer.py         # Whisper speech-to-text analysis
-│   │   └── distiller.py               # Distillation + ONNX edge export
+│   │   ├── intelligence.py            # Active learning, drift, clustering
+│   │   └── distiller.py              # Distillation + ONNX edge export
 │   └── utils/
 │       ├── metrics.py                 # F1, ROUGE, BERTScore, BLEU
 │       ├── visualization.py           # Plots and charts
 │       └── helpers.py                 # Config, seed, device utilities
 ├── api/
-│   ├── main.py                        # FastAPI app (15+ endpoints, Swagger)
+│   ├── main.py                        # FastAPI app (20+ endpoints, Swagger)
 │   ├── database.py                    # SQLAlchemy ORM (4 tables)
 │   ├── schemas.py                     # Pydantic request/response models
 │   └── routes/
 │       ├── analysis.py                # Text/URL/File/Batch/FactCheck/Spans
 │       ├── monitor.py                 # RSS feed monitoring endpoints
+│       ├── intelligence.py            # Analyst intelligence endpoints
 │       ├── social.py                  # Social platform monitoring endpoints
 │       ├── speech.py                  # Audio/video analysis endpoints
 │       └── reports.py                 # PDF report generation
@@ -280,17 +675,17 @@ persuasix/
 │   ├── components.py                  # 10+ HTML component builders
 │   ├── scraper.py                     # URL scraping (trafilatura + BS4)
 │   ├── file_parser.py                 # PDF/DOCX/TXT parsing
-│   ├── annotation.py                  # Collaborative annotation DB + API routes
+│   ├── annotation.py                  # Collaborative annotation system
 │   └── history.py                     # JSON-based analysis history
 ├── deploy/
-│   └── huggingface_space.py           # GPU-ready HuggingFace Spaces helper
+│   └── huggingface_space.py           # GPU-ready HuggingFace Spaces deployment
 ├── monitor/
-│   └── rss_monitor.py                 # Automated RSS feed monitoring
+│   └── rss_monitor.py                 # Automated RSS feed monitoring service
 ├── reports/
 │   └── pdf_generator.py               # Professional PDF report generator
 ├── extension/                         # Chrome Browser Extension (Manifest V3)
 │   ├── manifest.json                  # Extension configuration
-│   ├── PUBLISHING.md                  # Chrome Web Store publishing checklist
+│   ├── PUBLISHING.md                  # Chrome Web Store publishing guide
 │   ├── popup.html / popup.js          # Extension popup UI
 │   ├── background.js                  # Service worker (context menu, badges)
 │   ├── content.js / content.css       # In-page highlighting & tooltips
@@ -311,6 +706,7 @@ persuasix/
 │   ├── test_data.py                   # Data pipeline tests
 │   ├── test_models.py                 # Model architecture tests
 │   ├── test_pipeline.py               # End-to-end pipeline tests
+│   ├── test_social_monitor_live.py    # Live API integration tests
 │   └── adversarial/
 │       └── test_adversarial.py        # 12+ adversarial attack tests
 └── docker/
@@ -344,41 +740,47 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-### Optional: LLM Enrichment
-To use GPT-4 for dataset enrichment, set your API key:
+### Environment Variables
+
 ```bash
+# Required for dataset enrichment (optional for inference)
 export OPENAI_API_KEY="your-key-here"
-```
 
-### Optional: Live Integrations
+# Optional: Paid social media APIs
+export TWITTER_BEARER_TOKEN="your-token"      # Twitter/X (paid)
 
-```bash
-# Twitter/X API v2
-export TWITTER_BEARER_TOKEN="your-token"
+# Optional: Speech-to-text (if using cloud Whisper)
+export OPENAI_API_KEY="your-key"              # Same key as above
 
-# Reddit OAuth2
-export REDDIT_CLIENT_ID="your-client-id"
-export REDDIT_CLIENT_SECRET="your-client-secret"
-export REDDIT_USER_AGENT="PersuasiX/1.0"
-
-# YouTube Data API
-export YOUTUBE_API_KEY="your-key"
+# Note: Mastodon, RSS, YouTube Transcripts, and Hacker News
+# require NO API keys — they work out of the box.
 ```
 
 ---
 
 ## Quick Start
 
-### 1. Build the dataset (offline mode, no API key needed)
+### 1. Build the dataset
 
 ```bash
+# Offline mode (no API key needed — uses templates + synthetic generation)
 python scripts/build_dataset.py --skip-enrichment
+
+# Full mode (with GPT-4o-mini enrichment)
+python scripts/build_dataset.py
+
+# Generate 200K+ examples
+python scripts/generate_synthetic_data.py --num-examples 200000 --languages en fr ar es de zh hi
 ```
 
 ### 2. Train all models
 
 ```bash
+# Standard training
 python scripts/train.py --task all
+
+# LoRA fine-tuning (memory efficient)
+python scripts/train.py --task all --lora --quantize 4bit
 ```
 
 ### 3. Evaluate
@@ -390,11 +792,27 @@ python scripts/evaluate.py --task all \
     --neutralizer-path checkpoints/neutralizer/final_model
 ```
 
-### 4. Launch demo
+### 4. Launch the platform
 
 ```bash
+# Gradio UI (9-tab studio)
 python app/app.py
 # Open http://localhost:7860
+
+# FastAPI backend (20+ endpoints)
+uvicorn api.main:app --reload --port 8000
+# Open http://localhost:8000/docs
+```
+
+### 5. Start monitoring (no API keys needed)
+
+```python
+from src.pipeline.social_monitor import SocialMonitor
+
+monitor = SocialMonitor()
+results = monitor.multi_platform_search("propaganda", platforms=["mastodon", "rss", "hackernews"])
+report = monitor.generate_report(results["mastodon"] + results["rss"])
+print(f"Manipulation rate: {report['manipulation_rate']}%")
 ```
 
 ### Using the Pipeline in Code
@@ -402,7 +820,7 @@ python app/app.py
 ```python
 from src.pipeline.persuasix_pipeline import PersuasixPipeline
 
-# Load with default models (or provide checkpoint paths)
+# Load with default models
 pipeline = PersuasixPipeline.from_default_models(device="cpu")
 
 # Analyze a text
@@ -416,6 +834,7 @@ print(f"Techniques: {result.techniques}")
 print(f"Explanation: {result.explanation}")
 print(f"Neutral version: {result.neutral_rewrite}")
 print(f"Severity: {result.severity_score}/5")
+print(f"Manipulation score: {result.manipulation_score:.2%}")
 ```
 
 ---
@@ -436,6 +855,9 @@ python scripts/train.py --task neutralizer
 
 # All models
 python scripts/train.py --task all
+
+# With LoRA (4-bit quantized)
+python scripts/train.py --task all --lora --quantize 4bit --rank 16 --alpha 32
 ```
 
 ### Hyperparameters
@@ -449,8 +871,11 @@ All hyperparameters are in `config/config.yaml`. Key settings:
 | Batch size | 16 | 8 | 8 |
 | Epochs | 10 | 8 | 8 |
 | Max seq length | 512 | 512 | 512 |
+| LoRA rank | 16 | 8 | 8 |
+| LoRA alpha | 32 | 16 | 16 |
 
 ### Training Features
+- LoRA/QLoRA fine-tuning (4-bit quantization)
 - Mixed-precision training (FP16)
 - Gradient accumulation
 - Cosine annealing learning rate schedule
@@ -478,6 +903,11 @@ All hyperparameters are in `config/config.yaml`. Key settings:
 - Cosine similarity (original vs neutral)
 - Cross-lingual consistency
 
+**Adversarial Robustness:**
+- 12+ attack types (homoglyphs, prompt injection, semantic perturbation, etc.)
+- Robustness score per attack category
+- Test suite: `tests/adversarial/test_adversarial.py`
+
 ### Run tests
 
 ```bash
@@ -488,31 +918,91 @@ pytest tests/ -v --cov=src
 
 ## Demo App
 
-The Gradio-powered **PersuasiX Studio** provides:
+The Gradio-powered **PersuasiX Studio** provides a 9-tab interface:
 
-- **Technique Detection** — Color-coded badges with confidence bars
-- **Multilingual Explanation** — Explanations in EN, FR, AR
-- **Severity Gauge** — Visual manipulation intensity meter
-- **Side-by-side Comparison** — Original vs neutralized text
-- **Raw JSON** — Full analysis output for developers
+| Tab | Function |
+|-----|----------|
+| **Text Analysis** | Paste text, get full analysis with highlighting |
+| **URL Analysis** | Scrape any webpage and analyze |
+| **File Upload** | Analyze PDF, DOCX, TXT documents |
+| **Compare** | Side-by-side original vs. neutralized |
+| **Batch** | Bulk analysis of multiple texts |
+| **Dashboard** | Historical stats and trends |
+| **Intelligence** | Social monitoring + threat reports |
+| **Fact Check** | Claim extraction and verification |
+| **Education** | Learn about persuasion techniques |
 
-### Deploy to HuggingFace Spaces
+### Deploy to HuggingFace Spaces (GPU)
 
 ```bash
-# Prepare a Space-ready folder
+# Prepare Space-ready folder with GPU metadata
 python deploy/huggingface_space.py --prepare --gpu --output deploy/hf_space
 
-# Push via the HuggingFace Hub API
+# Push to HuggingFace Hub
 python deploy/huggingface_space.py --push --repo-id YOUR_USERNAME/persuasix-studio --output deploy/hf_space
 ```
 
-For manual deployment:
+Manual deployment:
 
 ```bash
 huggingface-cli login
 huggingface-cli repo create persuasix-studio --type space --space-sdk gradio
 git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/persuasix-studio
 git push hf main
+```
+
+---
+
+## API Reference
+
+The FastAPI backend exposes **20+ endpoints** with interactive Swagger documentation at `/docs`.
+
+### Core Analysis
+```
+POST /api/v1/analyze              — Full text analysis
+POST /api/v1/analyze/url          — Analyze URL content
+POST /api/v1/analyze/file         — Analyze uploaded file
+POST /api/v1/analyze/batch        — Batch analysis
+POST /api/v1/analyze/spans        — Span-level detection
+POST /api/v1/analyze/factcheck    — Fact-check claims
+```
+
+### Social Monitoring
+```
+GET  /api/v1/social/status              — Platform availability
+POST /api/v1/social/mastodon/search     — Search Mastodon
+POST /api/v1/social/mastodon/stream     — Real-time stream
+GET  /api/v1/social/rss/fetch           — Fetch RSS feeds
+POST /api/v1/social/youtube             — Video transcript analysis
+POST /api/v1/social/multi-search        — Cross-platform search
+```
+
+### Intelligence
+```
+GET /api/v1/intelligence/active-learning     — Review candidates
+GET /api/v1/intelligence/drift               — Distribution drift
+GET /api/v1/intelligence/narrative-clusters   — Campaign detection
+GET /api/v1/intelligence/threat-report       — Threat assessment
+```
+
+### Speech
+```
+POST /api/v1/speech/file    — Analyze audio/video file
+POST /api/v1/speech/url     — Analyze audio/video URL
+```
+
+### Annotation
+```
+POST /api/v1/annotate/tasks      — Create task
+GET  /api/v1/annotate/tasks/next — Next task for annotator
+POST /api/v1/annotate/submit     — Submit annotation
+GET  /api/v1/annotate/stats      — Statistics
+POST /api/v1/annotate/export     — Export for training
+```
+
+### Reports
+```
+POST /api/v1/reports/pdf    — Generate PDF report
 ```
 
 ---
@@ -541,7 +1031,17 @@ git push hf main
 |---|---|
 | EN ↔ FR | 0.89 |
 | EN ↔ AR | 0.82 |
+| EN ↔ ES | 0.87 |
+| EN ↔ DE | 0.88 |
 | FR ↔ AR | 0.80 |
+
+### Distilled Model Performance
+
+| Model | Parameters | F1 Macro | Latency (CPU) | Size |
+|-------|-----------|----------|---------------|------|
+| RoBERTa-base (teacher) | 125M | 0.78 | 45ms | 500MB |
+| DistilBERT (student) | 66M | 0.73 | 15ms | 130MB |
+| ONNX Quantized | 66M | 0.72 | 8ms | 35MB |
 
 ---
 
@@ -551,7 +1051,15 @@ git push hf main
 
 ```bash
 docker build -t persuasix -f docker/Dockerfile .
-docker run -p 7860:7860 persuasix
+docker run -p 7860:7860 -p 8000:8000 persuasix
+```
+
+### Docker Compose (Full Stack)
+
+```bash
+docker-compose up -d
+# Gradio UI: http://localhost:7860
+# API: http://localhost:8000/docs
 ```
 
 ### ONNX Export
@@ -563,96 +1071,35 @@ python scripts/export_model.py \
     --output-dir models/exported
 ```
 
-### HuggingFace Spaces with GPU
+### HuggingFace Spaces (GPU)
 
 ```bash
 python deploy/huggingface_space.py --prepare --gpu
 python deploy/huggingface_space.py --push --repo-id YOUR_USERNAME/persuasix-studio
 ```
 
-The generated Space metadata requests GPU hardware and uses `app.py` as the Gradio entry point.
-
-### Edge Distillation
+### Edge Deployment
 
 ```bash
 python -m src.pipeline.distiller \
-    --teacher roberta-large \
+    --teacher roberta-base \
     --student distilbert-base-uncased \
     --epochs 10 \
     --export-onnx \
     --quantize dynamic
 ```
 
-Outputs are written to `models/distilled/`, including ONNX artifacts for browser, mobile, or embedded inference.
-
-### Live Social Monitoring
-
-```bash
-uvicorn api.main:app --reload --port 8000
-
-# Check configured social connectors
-curl http://localhost:8000/api/v1/social/status
-```
-
-Supported connectors include Twitter/X recent search, Reddit search/subreddit monitoring, and YouTube comment analysis. Credentials are read from environment variables.
-
-### Speech-to-Text Analysis
-
-```bash
-curl -X POST http://localhost:8000/api/v1/speech/file \
-    -F "file=@speech.mp3" \
-    -F "language=en"
-```
-
-The speech pipeline transcribes audio/video with Whisper API or local Whisper, chunks the transcript by timestamp, and runs PersuasiX analysis over each segment.
-
-### Collaborative Annotation
-
-```bash
-uvicorn api.main:app --reload --port 8000
-```
-
-Annotation endpoints are available under `/api/v1/annotate`:
-
-- `POST /tasks` and `POST /tasks/bulk` to create work queues
-- `GET /tasks/next?annotator=name` to assign the next item
-- `POST /submit` to save span labels, technique labels, severity, and notes
-- `GET /agreement/{text_id}` to compute inter-annotator agreement
-- `POST /export` to export reviewed examples for fine-tuning
-
-### Chrome Web Store Publishing
-
-The extension is packaged from `extension/` and the full checklist lives in `extension/PUBLISHING.md`.
-
-```bash
-cd extension
-python icons/generate_icons.py
-zip -r persuasix-extension.zip manifest.json popup.html popup.js background.js content.js content.css options.html icons/
-```
-
 ---
-
-## Implemented Advanced Features
-
-- [x] **Scale dataset to 200K+ examples** — `scripts/generate_synthetic_data.py` with template + LLM + paraphrase augmentation across 7 languages
-- [x] **Add more languages** — Spanish, German, Chinese, Hindi added (7 total)
-- [x] **LoRA/QLoRA fine-tuning** — `src/training/lora_trainer.py` with 4-bit quantization, configurable rank/alpha, multi-task support
-- [x] **Span-level detection** — `src/pipeline/span_detector.py` with RoBERTa+CRF model + LLM hybrid detector
-- [x] **Browser extension** — `extension/` Chrome Manifest V3 extension with popup, context menu, in-page highlighting
-- [x] **Fact-checking API integration** — `src/pipeline/fact_checker.py` with Google Fact Check Tools + ClaimBuster + LLM verification
-- [x] **Adversarial robustness testing** — `tests/adversarial/` with 12+ attack types and automated robustness scoring
-- [x] **HuggingFace Spaces GPU deployment** — `deploy/huggingface_space.py` prepares and pushes a Gradio Space with optional GPU metadata
-- [x] **Collaborative annotation interface** — `app/annotation.py` provides SQLite task queues, span labels, agreement stats, and export endpoints
-- [x] **Social media API monitoring** — `src/pipeline/social_monitor.py` + `/api/v1/social/*` support Twitter/X, Reddit, and YouTube monitoring
-- [x] **Model distillation for edge deployment** — `src/pipeline/distiller.py` trains student models and exports ONNX/quantized artifacts
-- [x] **Speech-to-text persuasion analysis** — `src/pipeline/speech_analyzer.py` + `/api/v1/speech/*` analyze audio/video via Whisper
-- [x] **Chrome Web Store publishing path** — `extension/PUBLISHING.md` documents packaging, listing copy, screenshots, privacy policy, and review flow
 
 ## Roadmap
 
-- [ ] Add WebSocket-based live annotation presence and reviewer assignment locking
-- [ ] Add scheduled social monitoring jobs with persisted alerts for each platform
-- [ ] Add browser-side ONNX inference for the Chrome extension
+- [ ] WebSocket-based live annotation presence and reviewer assignment locking
+- [ ] Scheduled social monitoring jobs with persisted alerts
+- [ ] Browser-side ONNX inference for the Chrome extension (fully offline)
+- [ ] Graph-based campaign attribution across social platforms
+- [ ] Bluesky AT Protocol integration (pending public search API)
+- [ ] Telegram public channel monitoring
+- [ ] Multi-modal analysis (image text extraction + meme detection)
 
 ---
 
@@ -663,6 +1110,8 @@ zip -r persuasix-extension.zip manifest.json popup.html popup.js background.js c
 3. Raffel et al. (2020). *Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer (T5)*
 4. Liu et al. (2019). *RoBERTa: A Robustly Optimized BERT Pretraining Approach*
 5. Reimers & Gurevych (2020). *Making Monolingual Sentence Embeddings Multilingual using Knowledge Distillation*
+6. Hu et al. (2022). *LoRA: Low-Rank Adaptation of Large Language Models*
+7. Radford et al. (2023). *Robust Speech Recognition via Large-Scale Weak Supervision (Whisper)*
 
 ---
 

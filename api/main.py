@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.database import init_db
 from api.routes.analysis import router as analysis_router
+from api.routes.intelligence import router as intelligence_router
 from api.routes.monitor import router as monitor_router
 from api.routes.reports import router as reports_router
 from api.routes.social import router as social_router
@@ -51,6 +52,7 @@ app.add_middleware(
 
 # Routes
 app.include_router(analysis_router)
+app.include_router(intelligence_router)
 app.include_router(monitor_router)
 app.include_router(reports_router)
 app.include_router(create_annotation_routes())
@@ -90,6 +92,10 @@ def root():
             "generate_report": "POST /api/v1/reports/generate",
             "fact_check": "POST /api/v1/fact-check",
             "span_detection": "POST /api/v1/detect-spans",
+            "active_learning": "GET /api/v1/intelligence/active-learning",
+            "drift_report": "GET /api/v1/intelligence/drift",
+            "narrative_clusters": "GET /api/v1/intelligence/narrative-clusters",
+            "threat_report": "GET /api/v1/intelligence/threat-report",
         },
     }
 

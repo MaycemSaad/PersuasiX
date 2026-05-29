@@ -152,6 +152,114 @@ body { background: #0f172a !important; }
     border-top: 1px solid rgba(255,255,255,0.05);
     margin-top: 30px;
 }
+
+/* Interface polish overrides */
+.gradio-container {
+    background: #101735 !important;
+}
+body {
+    background: #101735 !important;
+}
+.hero-section {
+    background: linear-gradient(135deg, rgba(40,54,113,0.92), rgba(50,38,97,0.92));
+    border: 1px solid rgba(148,163,184,0.16);
+    border-radius: 8px;
+    box-shadow: 0 18px 42px rgba(0,0,0,0.24);
+    padding: 34px 20px 28px;
+}
+.hero-section h1 {
+    letter-spacing: 0;
+}
+.tech-badges span,
+.glass-card,
+.example-btn,
+.tech-card,
+.gradio-container button {
+    border-radius: 8px !important;
+}
+button[role="tab"] {
+    color: #cbd5e1 !important;
+    opacity: 1 !important;
+}
+button[role="tab"][aria-selected="true"] {
+    background: rgba(249,115,22,0.12) !important;
+    border-color: #f97316 !important;
+    color: #fed7aa !important;
+}
+.tab-nav button {
+    color: #cbd5e1 !important;
+}
+.stats-bar {
+    flex-wrap: wrap;
+}
+.glass-card {
+    background: rgba(24, 31, 53, 0.82);
+    border: 1px solid rgba(148,163,184,0.14);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+}
+.section-header {
+    align-items: center;
+    background: rgba(24,31,53,0.72);
+    border: 1px solid rgba(148,163,184,0.14);
+    border-radius: 8px;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 18px 20px;
+}
+.section-header h3 {
+    color: #f1f5f9;
+    margin: 0 0 4px;
+}
+.section-header p {
+    color: #94a3b8;
+    font-size: 0.9em;
+    margin: 0;
+}
+.section-pill {
+    background: rgba(99,102,241,0.16);
+    border: 1px solid rgba(99,102,241,0.28);
+    border-radius: 8px;
+    color: #a5b4fc;
+    font-size: 0.82em;
+    font-weight: 700;
+    padding: 7px 12px;
+    white-space: nowrap;
+}
+.intel-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.intel-card {
+    background: rgba(15,23,42,0.54);
+    border: 1px solid rgba(148,163,184,0.12);
+    border-radius: 8px;
+    padding: 16px;
+}
+.intel-kpi {
+    color: #f8fafc;
+    font-size: 1.8em;
+    font-weight: 800;
+}
+.intel-label {
+    color: #94a3b8;
+    font-size: 0.78em;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+@media (max-width: 900px) {
+    .hero-section { padding: 26px 14px 22px; }
+    .hero-section h1 { font-size: 2.25em; }
+    .stats-bar { gap: 18px; }
+    .section-header { align-items: flex-start; flex-direction: column; }
+    .intel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .intel-grid { grid-template-columns: 1fr; }
+    .glass-card { padding: 16px; }
+}
 """
 
 TECHNIQUE_COLORS: dict[str, str] = {
@@ -952,7 +1060,132 @@ def build_dashboard_html(stats: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
-# 10. Education Center
+# 10. Intelligence Center
+# ---------------------------------------------------------------------------
+
+def build_intelligence_html(report: dict) -> str:
+    """Render the analyst intelligence workspace."""
+    total = report.get("total_records", 0)
+    if total == 0:
+        return """
+        <div class="glass-card" style="text-align:center; padding:50px;">
+            <div style="font-size:3em; margin-bottom:16px;">&#128300;</div>
+            <h2 style="color:#f1f5f9; margin:0 0 8px;">No Intelligence Data Yet</h2>
+            <p style="color:#94a3b8;">Run several analyses first, then refresh this panel.</p>
+        </div>
+        """
+
+    persuasive_rate = report.get("persuasive_rate", 0) * 100
+    high_risk = report.get("high_risk_count", 0)
+    avg_score = report.get("avg_manipulation_score", 0) * 100
+    drift = report.get("drift", {})
+    drift_status = drift.get("status", "unknown").replace("_", " ").title()
+    status_color = {
+        "Stable": "#22c55e",
+        "Attention": "#f59e0b",
+        "Drift Detected": "#ef4444",
+    }.get(drift_status, "#94a3b8")
+
+    html = f"""
+    <div class="section-header">
+        <div>
+            <h3>&#128300; Analyst Intelligence</h3>
+            <p>Operational signals from stored analysis history.</p>
+        </div>
+        <span class="section-pill">{_esc(drift_status)}</span>
+    </div>
+    <div class="intel-grid">
+        <div class="intel-card">
+            <div class="intel-kpi">{total}</div>
+            <div class="intel-label">Records</div>
+        </div>
+        <div class="intel-card">
+            <div class="intel-kpi" style="color:#f59e0b;">{persuasive_rate:.0f}%</div>
+            <div class="intel-label">Persuasive Rate</div>
+        </div>
+        <div class="intel-card">
+            <div class="intel-kpi" style="color:#ef4444;">{high_risk}</div>
+            <div class="intel-label">High Risk</div>
+        </div>
+        <div class="intel-card">
+            <div class="intel-kpi" style="color:#a5b4fc;">{avg_score:.0f}%</div>
+            <div class="intel-label">Avg Score</div>
+        </div>
+    </div>
+    """
+
+    top_techniques = report.get("top_techniques", {})
+    if top_techniques:
+        max_count = max(top_techniques.values()) or 1
+        html += '<div class="glass-card"><h4 style="color:#f1f5f9;margin:0 0 14px;">Top Techniques</h4>'
+        for tech, count in list(top_techniques.items())[:8]:
+            color = TECHNIQUE_COLORS.get(tech, "#818cf8")
+            pct = int(count / max_count * 100)
+            html += f"""
+            <div style="margin:9px 0;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="color:#cbd5e1;">{_esc(tech.replace('_', ' ').title())}</span>
+                    <span style="color:{color};font-weight:700;">{count}</span>
+                </div>
+                <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;">
+                    <div style="width:{pct}%;height:100%;background:{color};"></div>
+                </div>
+            </div>
+            """
+        html += "</div>"
+
+    active = report.get("active_learning", {}).get("items", [])
+    html += '<div class="glass-card"><h4 style="color:#f1f5f9;margin:0 0 14px;">Active Learning Queue</h4>'
+    if active:
+        for item in active:
+            reasons = ", ".join(item.get("reasons", []))
+            html += f"""
+            <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 0;">
+                <div style="display:flex;justify-content:space-between;gap:12px;">
+                    <strong style="color:#e2e8f0;">Review #{item.get('analysis_id', 0)}</strong>
+                    <span style="color:#f59e0b;font-weight:800;">{item.get('uncertainty_score', 0):.2f}</span>
+                </div>
+                <p style="color:#94a3b8;margin:5px 0 0;">{_esc(item.get('text_preview', ''))}</p>
+                <p style="color:#64748b;margin:5px 0 0;font-size:0.82em;">{_esc(reasons)}</p>
+            </div>
+            """
+    else:
+        html += '<p style="color:#94a3b8;margin:0;">No uncertain examples found yet.</p>'
+    html += "</div>"
+
+    clusters = report.get("narrative_clusters", {}).get("items", [])
+    html += '<div class="glass-card"><h4 style="color:#f1f5f9;margin:0 0 14px;">Narrative Clusters</h4>'
+    if clusters:
+        for cluster in clusters:
+            html += f"""
+            <div style="background:rgba(15,23,42,0.48);border:1px solid rgba(148,163,184,0.1);border-radius:8px;padding:12px;margin:8px 0;">
+                <div style="display:flex;justify-content:space-between;gap:12px;">
+                    <strong style="color:#a5b4fc;">{_esc(cluster.get('signature', ''))}</strong>
+                    <span style="color:#f8fafc;">{cluster.get('size', 0)} items</span>
+                </div>
+                <div style="color:#94a3b8;font-size:0.86em;margin-top:4px;">Avg score: {cluster.get('avg_manipulation_score', 0) * 100:.0f}%</div>
+            </div>
+            """
+    else:
+        html += '<p style="color:#94a3b8;margin:0;">No repeated narrative clusters yet.</p>'
+    html += "</div>"
+
+    html += f"""
+    <div class="glass-card">
+        <h4 style="color:#f1f5f9;margin:0 0 14px;">Drift Monitor</h4>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div class="intel-card"><div class="intel-label">Status</div><div style="color:{status_color};font-weight:800;">{_esc(drift_status)}</div></div>
+            <div class="intel-card"><div class="intel-label">Technique JS</div><div style="color:#f8fafc;font-weight:800;">{drift.get('technique_js_divergence', 0)}</div></div>
+            <div class="intel-card"><div class="intel-label">Language JS</div><div style="color:#f8fafc;font-weight:800;">{drift.get('language_js_divergence', 0)}</div></div>
+            <div class="intel-card"><div class="intel-label">Score Shift</div><div style="color:#f8fafc;font-weight:800;">{drift.get('score_shift', 0)}</div></div>
+        </div>
+    </div>
+    """
+    return html
+
+
+# ---------------------------------------------------------------------------
+# 11. Education Center
 # ---------------------------------------------------------------------------
 
 EDUCATION_CONTENT: dict[str, dict] = {

@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "timestamp": "2026-05-29T16:57:56.278230",
+    "source_type": "text",
+    "source_label": "Only a fool would disagree with this plan. Every serious expert knows it is the ",
+    "is_persuasive": true,
+    "techniques": [
+      "loaded_language",
+      "appeal_to_fear"
+    ],
+    "technique_count": 2,
+    "severity_score": 3.0,
+    "manipulation_score": 0.72,
+    "language": "en"
+  },
+  {
+    "timestamp": "2026-05-29T16:58:55.722327",
+    "source_type": "url",
+    "source_label": "BBC News - Breaking news, video and the latest top stories from the U.S. and around the world",
+    "is_persuasive": false,
+    "techniques": [],
+    "technique_count": 0,
+    "severity_score": 0.0,
+    "manipulation_score": 0.0,
+    "language": "en"
+  },
+  {
+    "timestamp": "2026-05-29T16:59:49.762199",
+    "source_type": "batch",
+    "source_label": "The report says the policy may reduce traffic by 8 percent.",
+    "is_persuasive": false,
+    "techniques": [],
+    "technique_count": 0,
+    "severity_score": 0.0,
+    "manipulation_score": 0.0,
+    "language": "en"
+  },
+  {
+    "timestamp": "2026-05-29T16:59:57.079961",
+    "source_type": "batch",
+    "source_label": "Everyone knows this is the last chance to save our nation fr",
+    "is_persuasive": true,
+    "techniques": [
+      "loaded_language",
+      "appeal_to_fear"
+    ],
+    "technique_count": 2,
+    "severity_score": 3.0,
+    "manipulation_score": 0.72,
+    "language": "en"
+  },
+  {
+    "timestamp": "2026-05-29T17:00:01.763781",
+    "source_type": "batch",
+    "source_label": "Only corrupt politicians would question this obvious truth.",
+    "is_persuasive": true,
+    "techniques": [
+      "loaded_language"
+    ],
+    "technique_count": 1,
+    "severity_score": 3.0,
+    "manipulation_score": 0.72,
+    "language": "en"
+  }
+]

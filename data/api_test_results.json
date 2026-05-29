@@ -1,0 +1,141 @@
+{
+  "tested_at": "2026-05-29T19:29:46.674955",
+  "results": [
+    {
+      "name": "Mastodon",
+      "available": true,
+      "response_time_ms": 638,
+      "samples_fetched": 38,
+      "languages": [
+        "en",
+        "de",
+        "cs",
+        "es"
+      ],
+      "avg_text_length": 181,
+      "has_realtime": true,
+      "rate_limit": "300 req/5min (no auth)",
+      "content_quality": "high",
+      "persuasion_relevance": "high",
+      "errors": []
+    },
+    {
+      "name": "RSS Feeds",
+      "available": true,
+      "response_time_ms": 500,
+      "samples_fetched": 30,
+      "languages": [
+        "ar",
+        "en",
+        "fr"
+      ],
+      "avg_text_length": 247,
+      "has_realtime": false,
+      "rate_limit": "No limits (standard HTTP)",
+      "content_quality": "high",
+      "persuasion_relevance": "very high",
+      "errors": []
+    },
+    {
+      "name": "HackerNews",
+      "available": true,
+      "response_time_ms": 692,
+      "samples_fetched": 10,
+      "languages": [
+        "en"
+      ],
+      "avg_text_length": 529,
+      "has_realtime": true,
+      "rate_limit": "No limits (Firebase)",
+      "content_quality": "medium",
+      "persuasion_relevance": "medium",
+      "errors": []
+    },
+    {
+      "name": "Wikipedia Stream",
+      "available": true,
+      "response_time_ms": 1274,
+      "samples_fetched": 0,
+      "languages": [],
+      "avg_text_length": 0,
+      "has_realtime": true,
+      "rate_limit": "No limits (public SSE stream)",
+      "content_quality": "low",
+      "persuasion_relevance": "low",
+      "errors": []
+    },
+    {
+      "name": "Reddit Public",
+      "available": false,
+      "response_time_ms": 0,
+      "samples_fetched": 0,
+      "languages": [],
+      "avg_text_length": 0,
+      "has_realtime": false,
+      "rate_limit": "~60 req/min (no auth, with user-agent)",
+      "content_quality": "high",
+      "persuasion_relevance": "very high",
+      "errors": []
+    },
+    {
+      "name": "GNews",
+      "available": false,
+      "response_time_ms": 0,
+      "samples_fetched": 0,
+      "languages": [],
+      "avg_text_length": 0,
+      "has_realtime": false,
+      "rate_limit": "100 req/day (free tier)",
+      "content_quality": "high",
+      "persuasion_relevance": "high",
+      "errors": [
+        "HTTPSConnectionPool(host='gnews.io', port=443): Max retries exceeded with url: /api/v4/top-headlines"
+      ]
+    },
+    {
+      "name": "Bluesky",
+      "available": false,
+      "response_time_ms": 0,
+      "samples_fetched": 0,
+      "languages": [],
+      "avg_text_length": 0,
+      "has_realtime": true,
+      "rate_limit": "3000 req/5min (no auth for public)",
+      "content_quality": "",
+      "persuasion_relevance": "",
+      "errors": [
+        "HTTP 403"
+      ]
+    },
+    {
+      "name": "YouTube Transcripts",
+      "available": false,
+      "response_time_ms": 0,
+      "samples_fetched": 0,
+      "languages": [],
+      "avg_text_length": 0,
+      "has_realtime": false,
+      "rate_limit": "No official limits (scraping-based)",
+      "content_quality": "",
+      "persuasion_relevance": "",
+      "errors": [
+        "Package not installed"
+      ]
+    }
+  ],
+  "recommendation": {
+    "top_picks": [
+      "Mastodon",
+      "RSS Feeds",
+      "HackerNews"
+    ],
+    "realtime_sources": [
+      "Mastodon",
+      "HackerNews",
+      "Wikipedia Stream"
+    ],
+    "polling_sources": [
+      "RSS Feeds"
+    ]
+  }
+}

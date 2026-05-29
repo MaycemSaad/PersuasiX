@@ -25,4 +25,9 @@ try:
 except ImportError:
     pass
 
+try:
+    from .intelligence import PersuasixIntelligence
+except ImportError:
+    pass
+
 __all__ = ["PersuasixPipeline"]
