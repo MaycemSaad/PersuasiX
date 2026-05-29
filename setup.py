@@ -30,8 +30,13 @@ setup(
     ],
     extras_require={
         "dev": ["pytest>=7.4.0", "pytest-cov>=4.1.0", "ruff>=0.1.0"],
+        "api": ["fastapi>=0.110.0", "uvicorn>=0.27.0", "python-multipart>=0.0.9"],
         "enrichment": ["openai>=1.6.0", "anthropic>=0.40.0"],
         "collection": ["beautifulsoup4>=4.12.0", "trafilatura>=1.6.0", "newspaper3k>=0.2.8"],
+        "deploy": ["huggingface_hub>=0.23.0"],
+        "edge": ["onnx>=1.16.0", "onnxruntime>=1.17.0"],
+        "social": ["praw>=7.7.0"],
+        "speech": ["openai-whisper>=20231117"],
     },
     entry_points={
         "console_scripts": [

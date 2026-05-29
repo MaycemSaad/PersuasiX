@@ -395,7 +395,13 @@ def create_annotation_routes():
     from pydantic import BaseModel, Field
 
     router = APIRouter(prefix="/api/v1/annotate", tags=["Annotation"])
-    db = AnnotationDB()
+    db: AnnotationDB | None = None
+
+    def get_annotation_db() -> AnnotationDB:
+        nonlocal db
+        if db is None:
+            db = AnnotationDB()
+        return db
 
     class TaskCreateRequest(BaseModel):
         text_id: str
@@ -417,20 +423,24 @@ def create_annotation_routes():
 
     @router.post("/tasks")
     def create_task(req: TaskCreateRequest):
+        db = get_annotation_db()
         db.add_task(req.text_id, req.text, req.language, req.source, req.model_prediction)
         return {"status": "created", "text_id": req.text_id}
 
     @router.post("/tasks/bulk")
     def create_tasks_bulk(tasks: list[TaskCreateRequest]):
+        db = get_annotation_db()
         count = db.add_tasks_bulk([t.dict() for t in tasks])
         return {"status": "created", "count": count}
 
     @router.get("/tasks")
     def list_tasks(status: str | None = None, limit: int = 50):
+        db = get_annotation_db()
         return db.get_tasks(status, limit)
 
     @router.get("/tasks/next")
     def next_task(annotator: str):
+        db = get_annotation_db()
         task = db.get_next_task(annotator)
         if not task:
             raise HTTPException(404, "No pending tasks")
@@ -438,6 +448,7 @@ def create_annotation_routes():
 
     @router.post("/submit")
     def submit_annotation(req: AnnotationRequest):
+        db = get_annotation_db()
         annotation = Annotation(
             text_id=req.text_id,
             annotator=req.annotator,
@@ -454,14 +465,17 @@ def create_annotation_routes():
 
     @router.get("/agreement/{text_id}")
     def get_agreement(text_id: str):
+        db = get_annotation_db()
         return db.compute_agreement(text_id)
 
     @router.get("/stats")
     def annotation_stats():
+        db = get_annotation_db()
         return db.get_stats()
 
     @router.post("/export")
     def export_annotations(output_path: str = "data/annotated_export.jsonl", min_annotations: int = 2):
+        db = get_annotation_db()
         count = db.export_for_training(output_path, min_annotations)
         return {"status": "exported", "count": count, "path": output_path}
 

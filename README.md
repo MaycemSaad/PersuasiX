@@ -23,7 +23,7 @@
 - [Demo App](#demo-app)
 - [Results](#results)
 - [Deployment](#deployment)
-- [Future Work](#future-work)
+- [Roadmap](#roadmap)
 - [References](#references)
 - [License](#license)
 
@@ -48,9 +48,9 @@ Input Text → Detection → Explanation → Neutralization → Severity Score
 | **Pipeline** | End-to-end: raw text → full analysis |
 | **API** | FastAPI REST API with 15+ endpoints + Swagger docs |
 | **Extension** | Chrome browser extension for real-time analysis |
-| **Monitoring** | RSS feed monitoring with automated alerts |
+| **Monitoring** | RSS + social media monitoring with automated alerts |
 | **Reports** | Professional PDF report generation |
-| **Demo** | Interactive 9-tab Gradio app |
+| **Demo** | Interactive 9-tab Gradio app + HuggingFace Spaces deployment |
 
 ---
 
@@ -67,6 +67,7 @@ Most existing work stops at **detection** (binary or multi-label classification)
 7. **Adversarial Robustness** — Tested against 12+ attack types (homoglyphs, prompt injection, semantic perturbations)
 8. **Browser Extension** — Real-time Chrome extension with in-page highlighting and context menu integration
 9. **Synthetic Data Pipeline** — Scalable to 200K+ examples across 7 languages using template + LLM generation
+10. **Live Monitoring & Annotation** — Social media monitoring, collaborative annotation, and audio/video analysis workflows
 
 This makes PersuasiX not just a classifier, but a **complete media literacy and research platform**.
 
@@ -256,7 +257,10 @@ persuasix/
 │   ├── pipeline/
 │   │   ├── persuasix_pipeline.py      # End-to-end orchestration
 │   │   ├── span_detector.py           # RoBERTa+CRF span-level detection
-│   │   └── fact_checker.py            # Multi-API fact verification
+│   │   ├── fact_checker.py            # Multi-API fact verification
+│   │   ├── social_monitor.py          # Twitter/X, Reddit, YouTube monitoring
+│   │   ├── speech_analyzer.py         # Whisper speech-to-text analysis
+│   │   └── distiller.py               # Distillation + ONNX edge export
 │   └── utils/
 │       ├── metrics.py                 # F1, ROUGE, BERTScore, BLEU
 │       ├── visualization.py           # Plots and charts
@@ -268,19 +272,25 @@ persuasix/
 │   └── routes/
 │       ├── analysis.py                # Text/URL/File/Batch/FactCheck/Spans
 │       ├── monitor.py                 # RSS feed monitoring endpoints
+│       ├── social.py                  # Social platform monitoring endpoints
+│       ├── speech.py                  # Audio/video analysis endpoints
 │       └── reports.py                 # PDF report generation
 ├── app/
 │   ├── app.py                         # Gradio 9-tab demo application
 │   ├── components.py                  # 10+ HTML component builders
 │   ├── scraper.py                     # URL scraping (trafilatura + BS4)
 │   ├── file_parser.py                 # PDF/DOCX/TXT parsing
+│   ├── annotation.py                  # Collaborative annotation DB + API routes
 │   └── history.py                     # JSON-based analysis history
+├── deploy/
+│   └── huggingface_space.py           # GPU-ready HuggingFace Spaces helper
 ├── monitor/
 │   └── rss_monitor.py                 # Automated RSS feed monitoring
 ├── reports/
 │   └── pdf_generator.py               # Professional PDF report generator
 ├── extension/                         # Chrome Browser Extension (Manifest V3)
 │   ├── manifest.json                  # Extension configuration
+│   ├── PUBLISHING.md                  # Chrome Web Store publishing checklist
 │   ├── popup.html / popup.js          # Extension popup UI
 │   ├── background.js                  # Service worker (context menu, badges)
 │   ├── content.js / content.css       # In-page highlighting & tooltips
@@ -338,6 +348,21 @@ pip install -e .
 To use GPT-4 for dataset enrichment, set your API key:
 ```bash
 export OPENAI_API_KEY="your-key-here"
+```
+
+### Optional: Live Integrations
+
+```bash
+# Twitter/X API v2
+export TWITTER_BEARER_TOKEN="your-token"
+
+# Reddit OAuth2
+export REDDIT_CLIENT_ID="your-client-id"
+export REDDIT_CLIENT_SECRET="your-client-secret"
+export REDDIT_USER_AGENT="PersuasiX/1.0"
+
+# YouTube Data API
+export YOUTUBE_API_KEY="your-key"
 ```
 
 ---
@@ -474,13 +499,17 @@ The Gradio-powered **PersuasiX Studio** provides:
 ### Deploy to HuggingFace Spaces
 
 ```bash
-# Install HuggingFace CLI
-pip install huggingface_hub
+# Prepare a Space-ready folder
+python deploy/huggingface_space.py --prepare --gpu --output deploy/hf_space
 
-# Login
+# Push via the HuggingFace Hub API
+python deploy/huggingface_space.py --push --repo-id YOUR_USERNAME/persuasix-studio --output deploy/hf_space
+```
+
+For manual deployment:
+
+```bash
 huggingface-cli login
-
-# Create Space and push
 huggingface-cli repo create persuasix-studio --type space --space-sdk gradio
 git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/persuasix-studio
 git push hf main
@@ -534,6 +563,73 @@ python scripts/export_model.py \
     --output-dir models/exported
 ```
 
+### HuggingFace Spaces with GPU
+
+```bash
+python deploy/huggingface_space.py --prepare --gpu
+python deploy/huggingface_space.py --push --repo-id YOUR_USERNAME/persuasix-studio
+```
+
+The generated Space metadata requests GPU hardware and uses `app.py` as the Gradio entry point.
+
+### Edge Distillation
+
+```bash
+python -m src.pipeline.distiller \
+    --teacher roberta-large \
+    --student distilbert-base-uncased \
+    --epochs 10 \
+    --export-onnx \
+    --quantize dynamic
+```
+
+Outputs are written to `models/distilled/`, including ONNX artifacts for browser, mobile, or embedded inference.
+
+### Live Social Monitoring
+
+```bash
+uvicorn api.main:app --reload --port 8000
+
+# Check configured social connectors
+curl http://localhost:8000/api/v1/social/status
+```
+
+Supported connectors include Twitter/X recent search, Reddit search/subreddit monitoring, and YouTube comment analysis. Credentials are read from environment variables.
+
+### Speech-to-Text Analysis
+
+```bash
+curl -X POST http://localhost:8000/api/v1/speech/file \
+    -F "file=@speech.mp3" \
+    -F "language=en"
+```
+
+The speech pipeline transcribes audio/video with Whisper API or local Whisper, chunks the transcript by timestamp, and runs PersuasiX analysis over each segment.
+
+### Collaborative Annotation
+
+```bash
+uvicorn api.main:app --reload --port 8000
+```
+
+Annotation endpoints are available under `/api/v1/annotate`:
+
+- `POST /tasks` and `POST /tasks/bulk` to create work queues
+- `GET /tasks/next?annotator=name` to assign the next item
+- `POST /submit` to save span labels, technique labels, severity, and notes
+- `GET /agreement/{text_id}` to compute inter-annotator agreement
+- `POST /export` to export reviewed examples for fine-tuning
+
+### Chrome Web Store Publishing
+
+The extension is packaged from `extension/` and the full checklist lives in `extension/PUBLISHING.md`.
+
+```bash
+cd extension
+python icons/generate_icons.py
+zip -r persuasix-extension.zip manifest.json popup.html popup.js background.js content.js content.css options.html icons/
+```
+
 ---
 
 ## Implemented Advanced Features
@@ -545,15 +641,18 @@ python scripts/export_model.py \
 - [x] **Browser extension** — `extension/` Chrome Manifest V3 extension with popup, context menu, in-page highlighting
 - [x] **Fact-checking API integration** — `src/pipeline/fact_checker.py` with Google Fact Check Tools + ClaimBuster + LLM verification
 - [x] **Adversarial robustness testing** — `tests/adversarial/` with 12+ attack types and automated robustness scoring
+- [x] **HuggingFace Spaces GPU deployment** — `deploy/huggingface_space.py` prepares and pushes a Gradio Space with optional GPU metadata
+- [x] **Collaborative annotation interface** — `app/annotation.py` provides SQLite task queues, span labels, agreement stats, and export endpoints
+- [x] **Social media API monitoring** — `src/pipeline/social_monitor.py` + `/api/v1/social/*` support Twitter/X, Reddit, and YouTube monitoring
+- [x] **Model distillation for edge deployment** — `src/pipeline/distiller.py` trains student models and exports ONNX/quantized artifacts
+- [x] **Speech-to-text persuasion analysis** — `src/pipeline/speech_analyzer.py` + `/api/v1/speech/*` analyze audio/video via Whisper
+- [x] **Chrome Web Store publishing path** — `extension/PUBLISHING.md` documents packaging, listing copy, screenshots, privacy policy, and review flow
 
-## Future Work
+## Roadmap
 
-- [ ] Deploy to HuggingFace Spaces with GPU inference
-- [ ] Add real-time collaborative annotation interface
-- [ ] Integrate with social media APIs (Twitter/X, Reddit) for live monitoring
-- [ ] Build model distillation pipeline for edge deployment
-- [ ] Add speech-to-text for audio/video persuasion analysis
-- [ ] Publish Chrome extension to Web Store
+- [ ] Add WebSocket-based live annotation presence and reviewer assignment locking
+- [ ] Add scheduled social monitoring jobs with persisted alerts for each platform
+- [ ] Add browser-side ONNX inference for the Chrome extension
 
 ---
 

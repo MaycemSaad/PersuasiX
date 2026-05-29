@@ -20,7 +20,10 @@ from api.database import init_db
 from api.routes.analysis import router as analysis_router
 from api.routes.monitor import router as monitor_router
 from api.routes.reports import router as reports_router
+from api.routes.social import router as social_router
+from api.routes.speech import router as speech_router
 from api.schemas import HealthResponse
+from app.annotation import create_annotation_routes
 
 # ---------------------------------------------------------------------------
 # App
@@ -50,6 +53,9 @@ app.add_middleware(
 app.include_router(analysis_router)
 app.include_router(monitor_router)
 app.include_router(reports_router)
+app.include_router(create_annotation_routes())
+app.include_router(social_router)
+app.include_router(speech_router)
 
 # Static file serving for reports
 reports_dir = Path(__file__).resolve().parent.parent / "data" / "reports"
@@ -76,6 +82,11 @@ def root():
             "stats": "GET /api/v1/stats",
             "monitor_feeds": "GET /api/v1/monitor/feeds",
             "alerts": "GET /api/v1/monitor/alerts",
+            "annotation_tasks": "GET /api/v1/annotate/tasks",
+            "social_status": "GET /api/v1/social/status",
+            "social_search": "POST /api/v1/social/search",
+            "speech_file": "POST /api/v1/speech/file",
+            "speech_url": "POST /api/v1/speech/url",
             "generate_report": "POST /api/v1/reports/generate",
             "fact_check": "POST /api/v1/fact-check",
             "span_detection": "POST /api/v1/detect-spans",
